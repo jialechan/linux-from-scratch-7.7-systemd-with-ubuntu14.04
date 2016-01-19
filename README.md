@@ -787,6 +787,38 @@ chown -R root:root $LFS/tools
 ```
 
 ##构建 LFS 系统
+【准备虚拟内核文件系统】
+```shell
+mkdir -pv $LFS/{dev,proc,sys,run}
+
+mknod -m 600 $LFS/dev/console c 5 1
+mknod -m 666 $LFS/dev/null c 1 3
+
+mount -v --bind /dev $LFS/dev
+
+mount -vt devpts devpts $LFS/dev/pts -o gid=5,mode=620
+mount -vt proc proc $LFS/proc
+mount -vt sysfs sysfs $LFS/sys
+mount -vt tmpfs tmpfs $LFS/run
+
+if [ -h $LFS/dev/shm ]; then
+  mkdir -pv $LFS/$(readlink $LFS/dev/shm)
+fi
+```
+【进入 Chroot 环境】
+```shell
+chroot "$LFS" /tools/bin/env -i \
+    HOME=/root                  \
+    TERM="$TERM"                \
+    PS1='\u:\w\$ '              \
+    PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
+    /tools/bin/bash --login +h
+```
+注意一下 bash 的提示符是 I have no name!。这是正常的，因为这个时候 /etc/passwd 文件还没有被创建。＜/br＞
+＜/br＞
+＃从这以后的命令，以及后续章节里的命令都要在 chroot 环境下运行。＜/br＞
+＃如果因为某种原因（比如说重启）离开了这个环境，＜/br＞
+＃请保证运行【准备虚拟内核文件系统】的所有mount命令，再运行本节的命令chroot＜/br＞
 
 
 
