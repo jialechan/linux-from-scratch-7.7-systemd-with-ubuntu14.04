@@ -779,7 +779,7 @@ strip --strip-debug /tools/lib/*
 
 rm -rf /tools/{,share}/{info,man,doc}
 ```
-这两个命令会跳过一些文件，并提示不可识别的文件格式。
+这两个命令会跳过一些文件，并提示不可识别的文件格式。  
 【改变属主】 ＃以后部分的命令都必须以 root 用户身份执行而不再是 lfs 用户。
 ```shell
 su -
