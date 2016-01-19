@@ -137,10 +137,12 @@ EOF
 ```
 【创建$LFS/tools文件夹】
 ```shell
-sudo mkdir -v $LFS/tools
 sudo ln -sv $LFS/tools /
+sudo mkdir -v $LFS/sources
+sudo chmod -v a+wt $LFS/sources
 ```
 在宿主系统中创建/tools的符号链接,将其指向LFS分区中新建的文件夹，输出的提示是："/tools" -> "/mnt/lfs/tools"
+
 【添加LFS用户】
 ```shell
 sudo groupadd lfs
@@ -154,6 +156,7 @@ sudo chown -v lfs $LFS/sources
 su - lfs
 cat > ~/.bash_profile << "EOF"
 exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash
+source ~/.bash_profile
 EOF
 ```
 exec env -i.../bin/bash 命令用一个除了HOME 、 TERM 和 PS1 变量,完全空环境的 shell 代替运行中的 shell。
@@ -167,8 +170,21 @@ LFS_TGT=$(uname -m)-lfs-linux-gnu
 PATH=/tools/bin:/bin:/usr/bin
 export LFS LC_ALL LFS_TGT PATH
 EOF
-```
+
 source ~/.bash_profile
+```
+【软件包与补丁】
+```shell
+cd $LFS/sources
+wget 'https://linux.cn/lfs/LFS-BOOK-7.7-systemd/wget-list'
+wget --input-file=wget-list --continue --directory-prefix=$LFS/sources
+
+pushd $LFS/sources
+wget 'https://linux.cn/lfs/LFS-BOOK-7.7-systemd/md5sums'
+md5sum -c md5sums
+popd
+```
+
 
 
 
