@@ -772,7 +772,21 @@ make install
 cd $LFS/sources
 rm -rf xz-5.2.0/
 ```
+【清理无用内容】
+```shell
+strip --strip-debug /tools/lib/*
+/usr/bin/strip --strip-unneeded /tools/{,s}bin/*
 
+rm -rf /tools/{,share}/{info,man,doc}
+```
+【改变属主】#以后部分的命令都必须以 root 用户身份执行而不再是 lfs 用户。另外，再次确认下 $LFS 变量在 root 用户环境下也有定义。
+```shell
+su -
+echo $LFS
+chown -R root:root $LFS/tools
+```
+
+##构建 LFS 系统
 
 
 
