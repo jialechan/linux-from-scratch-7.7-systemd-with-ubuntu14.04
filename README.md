@@ -814,11 +814,13 @@ chroot "$LFS" /tools/bin/env -i \
     PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin \
     /tools/bin/bash --login +h
 ```
-注意一下 bash 的提示符是 I have no name!。这是正常的，因为这个时候 /etc/passwd 文件还没有被创建。＜/br＞
-＜/br＞
-＃从这以后的命令，以及后续章节里的命令都要在 chroot 环境下运行。＜/br＞
-＃如果因为某种原因（比如说重启）离开了这个环境，＜/br＞
-＃请保证运行【准备虚拟内核文件系统】的所有mount命令，再运行本节的命令chroot＜/br＞
+注意一下 bash 的提示符是 I have no name!。这是正常的，因为这个时候 /etc/passwd 文件还没有被创建。  
+  
+＃从这以后的命令，以及后续章节里的命令都要在 chroot 环境下运行。  
+＃如果因为某种原因（比如说重启）离开了这个环境，  
+＃请保证运行【准备虚拟内核文件系统】的所有mount命令，再运行本节的命令chroot  
+  
+【创建目录】
 
 
 
