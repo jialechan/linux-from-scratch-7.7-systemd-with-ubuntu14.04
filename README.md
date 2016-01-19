@@ -89,3 +89,23 @@ xz (XZ Utils) 5.1.0alpha
 g++ compilation OK
 ubuntu@ubuntu:~$
 ```
+【库文件的一致性检查（输入）】
+```shell
+cat > library-check.sh << "EOF"
+#!/bin/bash
+for lib in lib{gmp,mpfr,mpc}.la; do
+echo $lib: $(if find /usr/lib* -name $lib|
+grep -q $lib;then :;else echo not;fi) found
+done
+unset lib
+EOF
+```
+【库文件的一致性检查（输出参考）】
+```shell
+ubuntu@ubuntu:~$ bash library-check.sh
+libgmp.la: not found
+libmpfr.la: not found
+libmpc.la: not found
+ubuntu@ubuntu:~$
+```
+这些文件应该要么都在或者是都缺失，而不应该只有一两个。
