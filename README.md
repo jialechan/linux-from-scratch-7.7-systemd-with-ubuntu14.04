@@ -987,6 +987,10 @@ localedef -i zh_CN -f GB18030 zh_CN.GB18030
 
 make localedata/install-locales
 
+cd $LFS/sources
+rm -rf glibc-2.21 glibc-build
+```
+```shell
 cat > /etc/nsswitch.conf << "EOF"
 # Begin /etc/nsswitch.conf
 
@@ -1025,9 +1029,8 @@ unset ZONEINFO
 tzselect
 ```
 ```shell
-ln -sfv /usr/share/zoneinfo/<xxx> /etc/localtime
+ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 ```
-将命令中的 <xxx> 替换成你所在实际时区的名字,(比如Asia/Shanghai)  
 ```shell
 cat > /etc/ld.so.conf << "EOF"
 # Begin /etc/ld.so.conf
