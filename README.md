@@ -779,12 +779,11 @@ strip --strip-debug /tools/lib/*
 
 rm -rf /tools/{,share}/{info,man,doc}
 ```
-这两个命令会跳过一些文件，并提示不可识别的文件格式。  
-【改变属主】  
-＃以后部分的命令都必须以 root 用户身份执行而不再是 lfs 用户。另外，再次确认下 $LFS 变量在 root 用户环境下也有定义。
+这两个命令会跳过一些文件，并提示不可识别的文件格式。
+【改变属主】 ＃以后部分的命令都必须以 root 用户身份执行而不再是 lfs 用户。
 ```shell
 su -
-echo $LFS
+echo $LFS #再次确认下 $LFS 变量在 root 用户环境下也有定义。
 chown -R root:root $LFS/tools
 ```
 
