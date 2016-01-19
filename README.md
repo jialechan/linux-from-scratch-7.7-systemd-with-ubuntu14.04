@@ -1211,6 +1211,92 @@ make install-html
 cd /sources
 rm -rf mpc-1.0.2
 ```
+【GCC-4.9.2】
+```shell
+cd /sources
+tar -jxvf gcc-4.9.2.tar.bz2
+cd gcc-4.9.2
 
+mkdir -v ../gcc-build
+cd ../gcc-build
+
+SED=sed                       \
+../gcc-4.9.2/configure        \
+     --prefix=/usr            \
+     --enable-languages=c,c++ \
+     --disable-multilib       \
+     --disable-bootstrap      \
+     --with-system-zlib
+
+make
+
+#ulimit -s 32768
+#make -k check
+
+#../gcc-4.9.2/contrib/test_summary
+
+make install
+
+ln -sv ../../usr/bin/cpp /lib
+
+ln -sv gcc /usr/bin/cc
+
+install -v -dm755 /usr/lib/bfd-plugins
+ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/4.9.2/liblto_plugin.so /usr/lib/bfd-plugins/
+
+cd /sources
+rm -rf gcc-4.9.2 gcc-build
+```
+【检查最终的工具链】
+```shell
+echo 'main(){}' > dummy.c
+cc dummy.c -v -Wl,--verbose &> dummy.log
+readelf -l a.out | grep ': /lib'
+```
+这应该没有错误，最后一个命令的输出应该是（允许平台相关的动态链接器名字有差异）：[Requesting program interpreter: /lib/ld-linux.so.2]
+```shell
+grep -o '/usr/lib.*/crt[1in].*succeeded' dummy.log
+```
+最后一个命令的输出应该是：  
+/usr/lib/gcc/i686-pc-linux-gnu/4.9.2/../../../crt1.o succeeded  
+/usr/lib/gcc/i686-pc-linux-gnu/4.9.2/../../../crti.o succeeded  
+/usr/lib/gcc/i686-pc-linux-gnu/4.9.2/../../../crtn.o succeeded
+```shell
+grep -B4 '^ /usr/include' dummy.log
+```
+这个命令应该返回下面的的输出：  
+#include <...> search starts here:  
+/usr/lib/gcc/i686-pc-linux-gnu/4.9.2/include  
+/usr/local/include  
+/usr/lib/gcc/i686-pc-linux-gnu/4.9.2/include-fixed  
+/usr/include
+```shell
+grep 'SEARCH.*/usr/lib' dummy.log |sed 's|; |\n|g'
+```
+可以忽略指向含有 '-linux-gnu' 的路径的引用，但最后一个命令的输出应该是：
+SEARCH_DIR("/usr/x86_64-unknown-linux-gnu/lib64")  
+SEARCH_DIR("/usr/local/lib64")  
+SEARCH_DIR("/lib64")  
+SEARCH_DIR("/usr/lib64")  
+SEARCH_DIR("/usr/x86_64-unknown-linux-gnu/lib")  
+SEARCH_DIR("/usr/local/lib")  
+SEARCH_DIR("/lib")  
+SEARCH_DIR("/usr/lib");  
+```shell
+grep "/lib.*/libc.so.6 " dummy.log
+```
+最后一个命令的输出（64 位主机中应该是 lib64 目录）应该是：  
+attempt to open /lib/libc.so.6 succeeded
+```shell
+grep found dummy.log
+```
+最后一个命令的输出应该是（平台相关的动态链接器是可以有所差异， 64 位系统中应该是 lib64 目录）：  
+found ld-linux.so.2 at /lib/ld-linux.so.2
+```shell
+rm -v dummy.c a.out dummy.log
+
+mkdir -pv /usr/share/gdb/auto-load/usr/lib
+mv -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib
+```
 
 
