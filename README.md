@@ -1043,7 +1043,7 @@ include /etc/ld.so.conf.d/*.conf
 EOF
 mkdir -pv /etc/ld.so.conf.d
 ```
-
+【调整工具链】
 ```shell
 mv -v /tools/bin/{ld,ld-old}
 mv -v /tools/$(gcc -dumpmachine)/bin/{ld,ld-old}
