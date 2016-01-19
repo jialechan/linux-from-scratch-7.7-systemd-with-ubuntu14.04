@@ -1,6 +1,7 @@
 # linux-from-scratch-7.7-systemd-with-ubuntu14.04
 7.7-systemd版本的linux from scratch的一次实践，宿主系统是ubuntu14.04，硬件是amd的物理主机上的虚拟机：virtual-box
 
+##宿主系统预备
 【ubuntu 14.04环境设置（输入）】
 ```shell
 sudo rm /bin/sh
@@ -109,3 +110,11 @@ libmpc.la: not found
 ubuntu@ubuntu:~$
 ```
 这些文件应该要么都在或者是都缺失，而不应该只有一两个。
+
+##准备构建
+
+【分区】
+```shell
+sudo fdisk -l
+sudo mkfs -v -t ext4 /dev/sda
+```
