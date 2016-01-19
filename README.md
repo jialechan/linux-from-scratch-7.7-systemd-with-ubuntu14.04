@@ -275,6 +275,92 @@ make install
 cd $LFS/sources
 rm -rf gcc-build/ gcc-4.9.2/
 ```
+【Linux-3.19 API 头文件】
+```shell
+cd $LFS/sources
+tar -xvf linux-3.19.tar.xz
+cd linux-3.19
+make mrproper
+make INSTALL_HDR_PATH=dest headers_install
+cp -rv dest/include/* /tools/include
+
+cd $LFS/sources
+rm -rf linux-3.19/
+```
+【Glibc-2.21】
+```shell
+cd $LFS/sources
+tar -xvf glibc-2.21.tar.xz
+cd glibc-2.21
+
+if [ ! -r /usr/include/rpc/types.h ]; then
+  su -c 'mkdir -pv /usr/include/rpc'
+  su -c 'cp -v sunrpc/rpc/*.h /usr/include/rpc'
+fi
+
+sed -e '/ia32/s/^/1:/' \
+    -e '/SSE2/s/^1://' \
+    -i  sysdeps/i386/i686/multiarch/mempcpy_chk.S
+
+mkdir -v ../glibc-build
+cd ../glibc-build
+
+../glibc-2.21/configure                             \
+      --prefix=/tools                               \
+      --host=$LFS_TGT                               \
+      --build=$(../glibc-2.21/scripts/config.guess) \
+      --disable-profile                             \
+      --enable-kernel=2.6.32                        \
+      --with-headers=/tools/include                 \
+      libc_cv_forced_unwind=yes                     \
+      libc_cv_ctors_header=yes                      \
+      libc_cv_c_cleanup=yes
+
+make
+
+make install
+
+cd $LFS/sources
+rm -rf gcc-build/ glibc-2.21/
+```
+【确认新工具链的基本功能(编译和链接)都是像预期的那样正常工作】
+```shell
+echo 'main(){}' > dummy.c
+$LFS_TGT-gcc dummy.c
+readelf -l a.out | grep ': /tools'
+```
+如果一切工作正常的话，这里应该没有错误，最后一个命令的输出形式会是：
+[Requesting program interpreter: /tools/lib/ld-linux.so.2]
+```shell
+rm -v dummy.c a.out
+```
+【Libstdc++-4.9.2】
+```shell
+cd $LFS/sources
+tar -jxvf gcc-4.9.2.tar.bz2
+cd gcc-4.9.2
+
+mkdir -pv ../gcc-build
+cd ../gcc-build
+
+../gcc-4.9.2/libstdc++-v3/configure \
+    --host=$LFS_TGT                 \
+    --prefix=/tools                 \
+    --disable-multilib              \
+    --disable-shared                \
+    --disable-nls                   \
+    --disable-libstdcxx-threads     \
+    --disable-libstdcxx-pch         \
+    --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/4.9.2
+
+make
+
+make install 
+
+cd $LFS/sources
+rm -rf gcc-build/ gcc-4.9.2/
+```
+
 
 
 
