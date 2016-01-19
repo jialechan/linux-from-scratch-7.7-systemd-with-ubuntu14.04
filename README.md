@@ -111,10 +111,17 @@ ubuntu@ubuntu:~$
 ```
 这些文件应该要么都在或者是都缺失，而不应该只有一两个。
 
-##准备构建
+##构建前准备
 
 【分区】
 ```shell
 sudo fdisk -l
 sudo mkfs -v -t ext4 /dev/sda
+```
+【在分区上创建文件系统】
+```shell
+export LFS=/mnt/lfs
+
+sudo mkdir -pv $LFS   #建立挂载点
+sudo mount -v -t ext4 /dev/sda $LFS   #将/dev/sda挂载到$LFS
 ```
