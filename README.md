@@ -516,6 +516,264 @@ make install
 cd $LFS/sources
 rm -rf check-0.9.14/
 ```
+【Ncurses-5.9】
+```shell
+cd $LFS/sources
+tar -xzvf ncurses-5.9.tar.gz
+cd ncurses-5.9
+./configure --prefix=/tools \
+            --with-shared   \
+            --without-debug \
+            --without-ada   \
+            --enable-widec  \
+            --enable-overwrite
+make
+make install
+
+cd $LFS/sources
+rm -rf ncurses-5.9/
+```
+【Bash-4.3.30】
+```shell
+cd $LFS/sources
+tar -xzvf bash-4.3.30.tar.gz
+cd bash-4.3.30
+./configure --prefix=/tools --without-bash-malloc
+make
+make install
+ln -sv bash /tools/bin/sh
+
+cd $LFS/sources
+rm -rf bash-4.3.30/
+```
+【Bzip2-1.0.6】
+```shell
+cd $LFS/sources
+tar -xzvf bzip2-1.0.6.tar.gz
+cd bzip2-1.0.6
+make
+make PREFIX=/tools install
+
+cd $LFS/sources
+rm -rf bzip2-1.0.6/
+```
+【Coreutils-8.23】
+```shell
+cd $LFS/sources
+tar -xvf coreutils-8.23.tar.xz
+cd coreutils-8.23
+./configure --prefix=/tools --enable-install-program=hostname
+make
+make install
+
+cd $LFS/sources
+rm -rf coreutils-8.23/
+```
+【Diffutils-3.3】
+```shell
+cd $LFS/sources
+tar -xvf diffutils-3.3.tar.xz
+cd diffutils-3.3
+./configure --prefix=/tools
+make
+make install
+
+cd $LFS/sources
+rm -rf diffutils-3.3/
+```
+【File-5.22】
+```shell
+cd $LFS/sources
+tar -xzvf file-5.22.tar.gz
+cd file-5.22
+./configure --prefix=/tools
+make
+make install
+
+cd $LFS/sources
+rm -rf file-5.22/
+```
+【Findutils-4.4.2】
+```shell
+cd $LFS/sources
+tar -xzvf findutils-4.4.2.tar.gz
+cd findutils-4.4.2
+./configure --prefix=/tools
+make
+make install
+
+cd $LFS/sources
+rm -rf findutils-4.4.2/
+```
+【Gawk-4.1.1】
+```shell
+cd $LFS/sources
+tar -xvf gawk-4.1.1.tar.xz
+cd gawk-4.1.1
+./configure --prefix=/tools
+make
+make install
+
+cd $LFS/sources
+rm -rf gawk-4.1.1/
+```
+【Gettext-0.19.4】
+```shell
+cd $LFS/sources
+tar -xvf gettext-0.19.4.tar.xz
+cd gettext-0.19.4
+cd gettext-tools
+EMACS="no" ./configure --prefix=/tools --disable-shared
+make -C gnulib-lib
+make -C intl pluralx.c
+make -C src msgfmt
+make -C src msgmerge
+make -C src xgettext
+cp -v src/{msgfmt,msgmerge,xgettext} /tools/bin
+
+cd $LFS/sources
+rm -rf gettext-0.19.4/
+```
+【Grep-2.21】
+```shell
+cd $LFS/sources
+tar -xvf grep-2.21.tar.xz
+cd grep-2.21
+./configure --prefix=/tools
+make
+make install
+
+cd $LFS/sources
+rm -rf gettext-0.19.4/
+```
+【Gzip-1.6】
+```shell
+cd $LFS/sources
+tar -xvf gzip-1.6.tar.xz
+cd gzip-1.6
+./configure --prefix=/tools
+make
+make install
+
+cd $LFS/sources
+rm -rf gzip-1.6/
+```
+【M4-1.4.17】
+```shell
+cd $LFS/sources
+tar -xvf m4-1.4.17.tar.xz
+cd m4-1.4.17
+./configure --prefix=/tools
+make
+make install
+
+cd $LFS/sources
+rm -rf m4-1.4.17/
+```
+【Make-4.1】
+```shell
+cd $LFS/sources
+tar -jxvf make-4.1.tar.bz2
+cd make-4.1
+./configure --prefix=/tools --without-guile
+make
+make install
+
+cd $LFS/sources
+rm -rf m4-1.4.17/
+```
+【Patch-2.7.4】
+```shell
+cd $LFS/sources
+tar -xvf patch-2.7.4.tar.xz
+cd patch-2.7.4
+./configure --prefix=/tools
+make 
+make install
+
+cd $LFS/sources
+rm -rf patch-2.7.4/
+```
+【Perl-5.20.2】
+```shell
+cd $LFS/sources
+tar -jxvf perl-5.20.2.tar.bz2
+cd perl-5.20.2
+sh Configure -des -Dprefix=/tools -Dlibs=-lm
+make
+cp -v perl cpan/podlators/pod2man /tools/bin
+mkdir -pv /tools/lib/perl5/5.20.2
+cp -Rv lib/* /tools/lib/perl5/5.20.2
+
+cd $LFS/sources
+rm -rf perl-5.20.2/
+```
+【Sed-4.2.2】
+```shell
+cd $LFS/sources
+tar -jxvf sed-4.2.2.tar.bz2
+cd sed-4.2.2
+./configure --prefix=/tools
+make
+make install
+
+cd $LFS/sources
+rm -rf sed-4.2.2/
+```
+【Tar-1.28】
+```shell
+cd $LFS/sources
+tar -xvf tar-1.28.tar.xz
+cd tar-1.28
+./configure --prefix=/tools
+make 
+make install
+
+cd $LFS/sources
+rm -rf tar-1.28/
+```
+【Texinfo-5.2】
+```shell
+cd $LFS/sources
+tar -xvf texinfo-5.2.tar.xz
+cd texinfo-5.2
+./configure --prefix=/tools
+make 
+make install
+
+cd $LFS/sources
+rm -rf texinfo-5.2/
+```
+【Util-linux-2.26】
+```shell
+cd $LFS/sources
+tar -xvf util-linux-2.26.tar.xz
+cd util-linux-2.26
+./configure --prefix=/tools                \
+            --without-python               \
+            --disable-makeinstall-chown    \
+            --without-systemdsystemunitdir \
+            PKG_CONFIG=""
+make 
+make install
+
+cd $LFS/sources
+rm -rf util-linux-2.26/
+```
+【Xz-5.2.0】
+```shell
+cd $LFS/sources
+tar -xvf xz-5.2.0.tar.xz
+cd xz-5.2.0
+./configure --prefix=/tools
+make 
+make install
+
+cd $LFS/sources
+rm -rf xz-5.2.0/
+```
+
+
 
 
 
