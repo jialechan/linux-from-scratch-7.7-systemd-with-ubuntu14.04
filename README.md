@@ -1265,7 +1265,7 @@ grep -o '/usr/lib.*/crt[1in].*succeeded' dummy.log
 grep -B4 '^ /usr/include' dummy.log
 ```
 这个命令应该返回下面的的输出：  
-#include <...> search starts here:  
+ #include <...> search starts here:  
 /usr/lib/gcc/i686-pc-linux-gnu/4.9.2/include  
 /usr/local/include  
 /usr/lib/gcc/i686-pc-linux-gnu/4.9.2/include-fixed  
