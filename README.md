@@ -910,6 +910,304 @@ chgrp -v utmp /var/log/lastlog
 chmod -v 664  /var/log/lastlog
 chmod -v 600  /var/log/btmp
 ```
+【Linux-3.19 API 头文件】
+```shell
+cd /sources
+tar -xvf linux-3.19.tar.xz
+cd linux-3.19
+make mrproper
+make INSTALL_HDR_PATH=dest headers_install
+find dest/include \( -name .install -o -name ..install.cmd \) -delete
+cp -rv dest/include/* /usr/include
+
+cd /sources
+rm -rf linux-3.19/
+```
+【Man-pages-3.79】
+```shell
+cd /sources
+tar -xvf man-pages-3.79.tar.xz
+cd man-pages-3.79
+make install
+
+cd /sources
+rm -rf man-pages-3.79/
+```
+【Glibc-2.21】
+```shell
+cd /sources
+tar -xvf glibc-2.21.tar.xz
+cd glibc-2.21
+patch -Np1 -i ../glibc-2.21-fhs-1.patch
+sed -e '/ia32/s/^/1:/' \
+    -e '/SSE2/s/^1://' \
+    -i  sysdeps/i386/i686/multiarch/mempcpy_chk.S
+mkdir -v ../glibc-build
+cd ../glibc-build
+../glibc-2.21/configure    \
+    --prefix=/usr          \
+    --disable-profile      \
+    --enable-kernel=2.6.32 \
+    --enable-obsolete-rpc
+make
+make check
+
+touch /etc/ld.so.conf
+
+make install
+
+cp -v ../glibc-2.21/nscd/nscd.conf /etc/nscd.conf
+mkdir -pv /var/cache/nscd
+
+install -v -Dm644 ../glibc-2.21/nscd/nscd.tmpfiles /usr/lib/tmpfiles.d/nscd.conf
+install -v -Dm644 ../glibc-2.21/nscd/nscd.service /lib/systemd/system/nscd.service
+
+mkdir -pv /usr/lib/locale
+localedef -i cs_CZ -f UTF-8 cs_CZ.UTF-8
+localedef -i de_DE -f ISO-8859-1 de_DE
+localedef -i de_DE@euro -f ISO-8859-15 de_DE@euro
+localedef -i de_DE -f UTF-8 de_DE.UTF-8
+localedef -i en_GB -f UTF-8 en_GB.UTF-8
+localedef -i en_HK -f ISO-8859-1 en_HK
+localedef -i en_PH -f ISO-8859-1 en_PH
+localedef -i en_US -f ISO-8859-1 en_US
+localedef -i en_US -f UTF-8 en_US.UTF-8
+localedef -i es_MX -f ISO-8859-1 es_MX
+localedef -i fa_IR -f UTF-8 fa_IR
+localedef -i fr_FR -f ISO-8859-1 fr_FR
+localedef -i fr_FR@euro -f ISO-8859-15 fr_FR@euro
+localedef -i fr_FR -f UTF-8 fr_FR.UTF-8
+localedef -i it_IT -f ISO-8859-1 it_IT
+localedef -i it_IT -f UTF-8 it_IT.UTF-8
+localedef -i ja_JP -f EUC-JP ja_JP
+localedef -i ru_RU -f KOI8-R ru_RU.KOI8-R
+localedef -i ru_RU -f UTF-8 ru_RU.UTF-8
+localedef -i tr_TR -f UTF-8 tr_TR.UTF-8
+localedef -i zh_CN -f GB18030 zh_CN.GB18030
+
+make localedata/install-locales
+
+cat > /etc/nsswitch.conf << "EOF"
+# Begin /etc/nsswitch.conf
+
+passwd: files
+group: files
+shadow: files
+
+hosts: files dns myhostname
+networks: files
+
+protocols: files
+services: files
+ethers: files
+rpc: files
+
+# End /etc/nsswitch.conf
+EOF
+
+tar -xf ../tzdata2015a.tar.gz
+
+ZONEINFO=/usr/share/zoneinfo
+mkdir -pv $ZONEINFO/{posix,right}
+
+for tz in etcetera southamerica northamerica europe africa antarctica  \
+          asia australasia backward pacificnew systemv; do
+    zic -L /dev/null   -d $ZONEINFO       -y "sh yearistype.sh" ${tz}
+    zic -L /dev/null   -d $ZONEINFO/posix -y "sh yearistype.sh" ${tz}
+    zic -L leapseconds -d $ZONEINFO/right -y "sh yearistype.sh" ${tz}
+done
+
+cp -v zone.tab zone1970.tab iso3166.tab $ZONEINFO
+zic -d $ZONEINFO -p America/New_York
+unset ZONEINFO
+```
+```shell
+tzselect
+```
+```shell
+ln -sfv /usr/share/zoneinfo/<xxx> /etc/localtime
+```
+将命令中的 <xxx> 替换成你所在实际时区的名字,(比如Asia/Shanghai)  
+```shell
+cat > /etc/ld.so.conf << "EOF"
+# Begin /etc/ld.so.conf
+/usr/local/lib
+/opt/lib
+
+EOF
+
+cat >> /etc/ld.so.conf << "EOF"
+# Add an include directory
+include /etc/ld.so.conf.d/*.conf
+
+EOF
+mkdir -pv /etc/ld.so.conf.d
+```
+
+```shell
+mv -v /tools/bin/{ld,ld-old}
+mv -v /tools/$(gcc -dumpmachine)/bin/{ld,ld-old}
+mv -v /tools/bin/{ld-new,ld}
+ln -sv /tools/bin/ld /tools/$(gcc -dumpmachine)/bin/ld
+
+gcc -dumpspecs | sed -e 's@/tools@@g'                   \
+    -e '/\*startfile_prefix_spec:/{n;s@.*@/usr/lib/ @}' \
+    -e '/\*cpp:/{n;s@$@ -isystem /usr/include@}' >      \
+    `dirname $(gcc --print-libgcc-file-name)`/specs
+```
+【检查已调整的工具链的基本功能（编译和链接）】
+```shell
+echo 'main(){}' > dummy.c
+cc dummy.c -v -Wl,--verbose &> dummy.log
+readelf -l a.out | grep ': /lib'
+```
+如果没有任何错误，上条命令的输出应该是（不同的平台上的动态链接器可能名字不同）：[Requesting program interpreter: /lib/ld-linux.so.2]
+```shell
+grep -o '/usr/lib.*/crt[1in].*succeeded' dummy.log
+```
+上一条命令的输出应该是：  
+/usr/lib/crt1.o succeeded  
+/usr/lib/crti.o succeeded  
+/usr/lib/crtn.o succeeded  
+```shell
+grep -B1 '^ /usr/include' dummy.log
+```
+这条命令应该返回如下输出：
+```shell
+#include <...> search starts here:
+/usr/include
+```
+```shell
+grep 'SEARCH.*/usr/lib' dummy.log |sed 's|; |\n|g'
+```
+应该忽略指向带有 '-linux-gnu' 的路径，上条命令的输出应该是：  
+SEARCH_DIR("/usr/lib")  
+SEARCH_DIR("/lib");  
+```shell
+grep "/lib.*/libc.so.6 " dummy.log
+```
+上条命令的输出应该是（在 64 位主机上会有 lib64 目录）：  
+attempt to open /lib/libc.so.6 succeeded  
+```shell
+grep found dummy.log
+```
+上条命令的结果应该是（不同的平台上链接器名字可以不同，64 位主机上是 lib64 目录）：  
+found ld-linux.so.2 at /lib/ld-linux.so.2  
+一旦所有的事情都正常了，清除测试文件：
+```shell
+rm -v dummy.c a.out dummy.log
+```
+【Zlib-1.2.8】
+```shell
+cd /sources
+tar -xvf zlib-1.2.8.tar.xz
+cd zlib-1.2.8
+./configure --prefix=/usr
+make
+make install
+
+mv -v /usr/lib/libz.so.* /lib
+ln -sfv ../../lib/$(readlink /usr/lib/libz.so) /usr/lib/libz.so
+
+cd /sources
+rm -rf zlib-1.2.8
+```
+【File-5.22】
+```shell
+cd /sources
+tar -xzvf file-5.22.tar.gz
+cd file-5.22
+
+./configure --prefix=/usr
+make
+make install
+
+cd /sources
+rm -rf file-5.22
+```
+【Binutils-2.25】  
+通过一个简单测试验证在 chroot 环境下 PTY 工作正常：
+```shell
+expect -c "spawn ls"
+```
+这个命令应该输出以下内容：  
+spawn ls  
+假如输出包括下面的信息，那么表示没有为 PTY 操作设置好环境。在运行 Binutils 和 GCC 的测试套件之前需要解决这个问题：  
+The system has no more ptys.  
+Ask your system administrator to create more.
+```shell
+cd /sources
+tar -jxvf binutils-2.25.tar.bz2
+cd binutils-2.25
+mkdir -v ../binutils-build
+cd ../binutils-build
+
+../binutils-2.25/configure --prefix=/usr   \
+                           --enable-shared \
+                           --disable-werror
+
+make tooldir=/usr
+make -k check
+make tooldir=/usr install
+
+cd /sources
+rm -rf binutils-2.25
+```
+【GMP-6.0.0a】
+```shell
+cd /sources
+tar -xvf gmp-6.0.0a.tar.xz
+cd gmp-6.0.0
+
+./configure --prefix=/usr \
+            --enable-cxx  \
+            --docdir=/usr/share/doc/gmp-6.0.0a
+
+make
+make html
+
+make check 2>&1 | tee gmp-check-log
+```
+确认测试套件中所有的 188 个测试都通过了。通过输入下面的命令检查结果：  
+awk '/tests passed/{total+=$2} ; END{print total}' gmp-check-log
+```shell
+make install
+make install-html
+
+cd /sources
+rm -rf gmp-6.0.0
+```
+【MPFR-3.1.2】
+```shell
+cd /sources
+tar -xvf mpfr-3.1.2.tar.xz
+cd mpfr-3.1.2
+patch -Np1 -i ../mpfr-3.1.2-upstream_fixes-3.patch
+./configure --prefix=/usr        \
+            --enable-thread-safe \
+            --docdir=/usr/share/doc/mpfr-3.1.2
+make
+make check
+make install
+make install-html
+
+cd /sources
+rm -rf mpfr-3.1.2
+```
+【MPC-1.0.2】
+```shell
+cd /sources
+tar -xzvf mpc-1.0.2.tar.gz
+cd mpc-1.0.2
+./configure --prefix=/usr --docdir=/usr/share/doc/mpc-1.0.2
+make
+make html
+make install
+make install-html
+
+cd /sources
+rm -rf mpc-1.0.2
+```
 
 
 
