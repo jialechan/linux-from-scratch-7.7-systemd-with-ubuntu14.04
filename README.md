@@ -1186,7 +1186,7 @@ cd /sources
 tar -xvf mpfr-3.1.2.tar.xz
 cd mpfr-3.1.2
 patch -Np1 -i ../mpfr-3.1.2-upstream_fixes-3.patch
-./configure --prefix=/usr        \
+./configure --prefix=/usr        \../../usr/bin/cpp
             --enable-thread-safe \
             --docdir=/usr/share/doc/mpfr-3.1.2
 make
@@ -1273,7 +1273,7 @@ grep -B4 '^ /usr/include' dummy.log
 ```shell
 grep 'SEARCH.*/usr/lib' dummy.log |sed 's|; |\n|g'
 ```
-可以忽略指向含有 '-linux-gnu' 的路径的引用，但最后一个命令的输出应该是：
+可以忽略指向含有 '-linux-gnu' 的路径的引用，但最后一个命令的输出应该是：  
 SEARCH_DIR("/usr/x86_64-unknown-linux-gnu/lib64")  
 SEARCH_DIR("/usr/local/lib64")  
 SEARCH_DIR("/lib64")  
