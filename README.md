@@ -125,3 +125,52 @@ export LFS=/mnt/lfs
 sudo mkdir -pv $LFS   #建立挂载点
 sudo mount -v -t ext4 /dev/sda $LFS   #将/dev/sda挂载到$LFS
 ```
+【设置 $LFS 变量】
+```shell
+sudo passwd root
+su -
+export LFS=/mnt/lfs
+cat > /root/.bash_profile << "EOF"
+#!/bin/bash
+export LFS=/mnt/lfs
+EOF
+```
+【创建$LFS/tools文件夹】
+```shell
+sudo mkdir -v $LFS/tools
+sudo ln -sv $LFS/tools /
+```
+在宿主系统中创建/tools的符号链接,将其指向LFS分区中新建的文件夹，输出的提示是："/tools" -> "/mnt/lfs/tools"
+【添加LFS用户】
+```shell
+sudo groupadd lfs
+sudo useradd -s /bin/bash -g lfs -m -k /dev/null lfs
+sudo passwd lfs
+sudo chown -v lfs $LFS/tools
+sudo chown -v lfs $LFS/sources
+```
+【设置环境】
+```shell
+su - lfs
+cat > ~/.bash_profile << "EOF"
+exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash
+EOF
+```
+exec env -i.../bin/bash 命令用一个除了HOME 、 TERM 和 PS1 变量,完全空环境的 shell 代替运行中的 shell。
+```shell
+cat > ~/.bashrc << "EOF"
+set +h
+umask 022
+LFS=/mnt/lfs
+LC_ALL=POSIX
+LFS_TGT=$(uname -m)-lfs-linux-gnu
+PATH=/tools/bin:/bin:/usr/bin
+export LFS LC_ALL LFS_TGT PATH
+EOF
+```
+source ~/.bash_profile
+
+
+
+
+
