@@ -460,6 +460,62 @@ readelf -l a.out | grep ': /tools'
 ```shell
 rm -v dummy.c a.out
 ```
+【Tcl-8.6.3】
+```shell
+cd $LFS/sources
+tar -xzvf tcl8.6.3-src.tar.gz
+cd tcl8.6.3
+cd unix
+./configure --prefix=/tools
+make 
+make install
+chmod -v u+w /tools/lib/libtcl8.6.so
+make install-private-headers
+ln -sv tclsh8.6 /tools/bin/tclsh
+
+cd $LFS/sources
+rm -rf tcl8.6.3/
+```
+
+【Expect-5.45】
+```shell
+cd $LFS/sources
+tar -xzvf expect5.45.tar.gz
+cd expect5.45
+cp -v configure{,.orig}
+sed 's:/usr/local/bin:/bin:' configure.orig > configure
+./configure --prefix=/tools       \
+            --with-tcl=/tools/lib \
+            --with-tclinclude=/tools/include
+make
+make SCRIPTS="" install
+
+cd $LFS/sources
+rm -rf expect5.45/
+```
+【DejaGNU-1.5.2】
+```shell
+cd $LFS/sources
+tar -xzvf dejagnu-1.5.2.tar.gz
+cd dejagnu-1.5.2
+./configure --prefix=/tools
+make install
+
+cd $LFS/sources
+rm -rf dejagnu-1.5.2/
+```
+【Check-0.9.14】
+```shell
+cd $LFS/sources
+tar -xzvf check-0.9.14.tar.gz
+cd check-0.9.14
+PKG_CONFIG= ./configure --prefix=/tools
+make
+make install
+
+cd $LFS/sources
+rm -rf check-0.9.14/
+```
 
 
 
