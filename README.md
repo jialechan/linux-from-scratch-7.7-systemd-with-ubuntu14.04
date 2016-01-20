@@ -2343,4 +2343,217 @@ endif
 " End /etc/vimrc
 EOF
 ```
+【再次清理无用内容】
+```shell
+logout
 
+chroot $LFS /tools/bin/env -i            \
+    HOME=/root TERM=$TERM PS1='\u:\w\$ ' \
+    PATH=/bin:/usr/bin:/sbin:/usr/sbin   \
+    /tools/bin/bash --login
+
+/tools/bin/find /{,usr/}{bin,lib,sbin} -type f \
+    -exec /tools/bin/strip --strip-debug '{}' ';'
+
+rm -rf /tmp/*
+```
+【手动或者重启卸载了虚拟内核文件系统，重新进入 chroot 的时候确保挂载了虚拟内核文件系统】
+```shell
+root:~# exit
+logout
+root@ubuntu:
+```
+```shell
+mount -v --bind /dev $LFS/dev
+
+mount -vt devpts devpts $LFS/dev/pts -o gid=5,mode=620
+mount -vt proc proc $LFS/proc
+mount -vt sysfs sysfs $LFS/sys
+mount -vt tmpfs tmpfs $LFS/run
+
+chroot "$LFS" /usr/bin/env -i              \
+    HOME=/root TERM="$TERM" PS1='\u:\w\$ ' \
+    PATH=/bin:/usr/bin:/sbin:/usr/sbin     \
+    /bin/bash --login
+
+```
+【通用网络配置】
+```shell
+cat > /etc/systemd/network/10-dhcp-eth0.network << "EOF"
+[Match]
+Name=eth0
+
+[Network]
+DHCP=yes
+EOF
+
+cat > /etc/resolv.conf << "EOF"
+# Begin /etc/resolv.conf
+
+nameserver 223.5.5.5
+nameserver 180.76.76.76
+
+# End /etc/resolv.conf
+EOF
+
+ln -sfv /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+echo "lfs" > /etc/hostname
+
+cat > /etc/hosts << "EOF"
+# Begin /etc/hosts (network card version)
+
+127.0.0.1 localhost
+::1       localhost
+
+# End /etc/hosts (network card version)
+EOF
+```
+【系统区域设置】
+```shell
+cat > /etc/locale.conf << "EOF"
+LANG=zh_CN.UTF-8
+EOF
+```
+【创建 /etc/inputrc 文件】
+```shell
+cat > /etc/inputrc << "EOF"
+# Begin /etc/inputrc
+# Modified by Chris Lynn <roryo@roryo.dynup.net>
+
+# Allow the command prompt to wrap to the next line
+set horizontal-scroll-mode Off
+
+# Enable 8bit input
+set meta-flag On
+set input-meta On
+
+# Turns off 8th bit stripping
+set convert-meta Off
+
+# Keep the 8th bit for display
+set output-meta On
+
+# none, visible or audible
+set bell-style none
+
+# All of the following map the escape sequence of the value
+# contained in the 1st argument to the readline specific functions
+"\eOd": backward-word
+"\eOc": forward-word
+
+# for linux console
+"\e[1~": beginning-of-line
+"\e[4~": end-of-line
+"\e[5~": beginning-of-history
+"\e[6~": end-of-history
+"\e[3~": delete-char
+"\e[2~": quoted-insert
+
+# for xterm
+"\eOH": beginning-of-line
+"\eOF": end-of-line
+
+# for Konsole
+"\e[H": beginning-of-line
+"\e[F": end-of-line
+
+# End /etc/inputrc
+EOF
+```
+【创建 /etc/shells 文件】
+```shell
+cat > /etc/shells << "EOF"
+# Begin /etc/shells
+
+/bin/sh
+/bin/bash
+
+# End /etc/shells
+EOF
+```
+【Systemd 的用法与配置】
+```shell
+mkdir -pv /etc/systemd/system/getty@tty1.service.d
+
+cat > /etc/systemd/system/getty@tty1.service.d/noclear.conf << EOF
+[Service]
+TTYVTDisallocate=no
+EOF
+
+ln -sfv /dev/null /etc/systemd/system/tmp.mount
+
+mkdir -pv /etc/systemd/system/foobar.service.d
+
+cat > /etc/systemd/system/foobar.service.d/foobar.conf << EOF
+[Service]
+Restart=always
+RestartSec=30
+EOF
+```
+【创建 /etc/fstab 文件】
+```shell
+cat > /etc/fstab << "EOF"
+/dev/sda     /            ext4    defaults            1     1
+EOF
+```
+【Linux-3.19】
+```shell
+exit
+```
+root@ubuntu:~#
+```shell
+mount -v --bind /dev $LFS/dev
+mount -vt devpts devpts $LFS/dev/pts -o gid=5,mode=620
+mount -vt proc proc $LFS/proc
+mount -vt sysfs sysfs $LFS/sys
+mount -vt tmpfs tmpfs $LFS/run
+chroot "$LFS" /usr/bin/env -i              \
+    HOME=/root TERM="$TERM" PS1='\u:\w\$ ' \
+    PATH=/bin:/usr/bin:/sbin:/usr/sbin     \
+    /bin/bash --login
+
+cd /sources
+tar -xvf linux-3.19.tar.xz
+cd linux-3.19
+
+make mrproper
+make defconfig
+
+make 
+make modules_install
+
+cp -v arch/x86_64/boot/bzImage /boot/vmlinuz-3.19-lfs-7.7-systemd
+
+cp -v System.map /boot/System.map-3.19
+
+cp -v .config /boot/config-3.19
+
+install -v -m755 -d /etc/modprobe.d
+cat > /etc/modprobe.d/usb.conf << "EOF"
+# Begin /etc/modprobe.d/usb.conf
+
+install ohci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i ohci_hcd ; true
+install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
+
+# End /etc/modprobe.d/usb.conf
+EOF
+```
+
+【使用 GRUB 设置启动过程】
+```
+grub-install --force /dev/sda
+
+cat > /boot/grub/grub.cfg << "EOF"
+# Begin /boot/grub/grub.cfg
+set default=0
+set timeout=5
+
+insmod ext2
+set root='hd0'
+
+menuentry "GNU/Linux, Linux 3.19-lfs-7.7-systemd" {
+        linux   /boot/vmlinuz-3.19-lfs-7.7-systemd root=/dev/sda ro
+}
+EOF
+```
