@@ -2538,6 +2538,9 @@ install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
 
 # End /etc/modprobe.d/usb.conf
 EOF
+
+cd /sources
+rm -rf linux-3.19
 ```
 
 【使用 GRUB 设置启动过程】
