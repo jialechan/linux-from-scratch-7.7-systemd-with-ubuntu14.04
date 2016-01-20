@@ -2311,7 +2311,7 @@ rm -rf texinfo-5.2
 ```shell
 cd /sources
 tar -jxvf vim-7.4.tar.bz2
-cd vim-7.4
+cd vim74
 
 echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
 ./configure --prefix=/usr
@@ -2326,7 +2326,7 @@ done
 ln -sv ../vim/vim74/doc /usr/share/doc/vim-7.4
 
 cd /sources
-rm -rf vim-7.4
+rm -rf vim74
 ```
 【设置 Vim】
 ```shell
