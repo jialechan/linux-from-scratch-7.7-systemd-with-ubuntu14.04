@@ -1,5 +1,7 @@
 # linux-from-scratch-7.7-systemd-with-ubuntu14.04
-7.7-systemd版本的linux from scratch的一次实践，宿主系统是ubuntu14.04，硬件是amd的物理主机上的虚拟机：virtual-box
+7.7-systemd版本的linux from scratch的一次实践，宿主系统是ubuntu14.04，硬件是amd的物理主机上的虚拟机：virtual-box。   
+
+参考于：https://linux.cn/lfs/LFS-BOOK-7.7-systemd/
 
 ##宿主系统预备
 【ubuntu 14.04环境设置（输入）】
