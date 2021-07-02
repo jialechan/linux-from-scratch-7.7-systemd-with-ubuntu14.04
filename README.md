@@ -3,7 +3,7 @@
 
 参考于：https://linux.cn/lfs/LFS-BOOK-7.7-systemd/
 
-##宿主系统预备
+## 宿主系统预备
 【ubuntu 14.04环境设置（输入）】
 ```shell
 sudo rm /bin/sh
@@ -113,7 +113,7 @@ ubuntu@ubuntu:~$
 ```
 这些文件应该要么都在或者是都缺失，而不应该只有一两个。
 
-##构建前准备
+## 构建前准备
 
 【分区】
 ```shell
@@ -187,7 +187,7 @@ md5sum -c md5sums
 popd
 ```
 
-##构建临时系统
+## 构建临时系统
 【Binutils-2.25 - 第一遍（安装交叉编译的 Binutils）】
 ```shell
 cd $LFS/sources
@@ -789,7 +789,7 @@ echo $LFS #再次确认下 $LFS 变量在 root 用户环境下也有定义。
 chown -R root:root $LFS/tools
 ```
 
-##构建 LFS 系统
+## 构建 LFS 系统
 【准备虚拟内核文件系统】
 ```shell
 mkdir -pv $LFS/{dev,proc,sys,run}
